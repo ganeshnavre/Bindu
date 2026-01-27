@@ -6,13 +6,14 @@ This package provides authentication clients and utilities for Ory Hydra and Kra
 from __future__ import annotations as _annotations
 
 # Import from new module structure
-from bindu.auth.hydra.client import HydraClient, TokenIntrospectionResult, OAuthClient
+from bindu.auth.hydra.client import HydraClient
 from bindu.auth.hydra.registration import (
     AgentCredentials,
     register_agent_in_hydra,
     load_agent_credentials,
     save_agent_credentials,
 )
+from bindu.common.models import TokenIntrospectionResult, OAuthClient
 
 __all__ = [
     # Hydra

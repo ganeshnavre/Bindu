@@ -3,10 +3,10 @@
 This module defines the configuration settings for the application using pydantic models.
 """
 
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, validator, BaseModel, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import AliasChoices
-from typing import Literal
+from typing import Literal, Any, Dict, List, Optional
 
 
 class ProjectSettings(BaseSettings):
@@ -519,6 +519,76 @@ class AuthSettings(BaseSettings):
         "contexts/list": ["agent:read"],
         "tasks/feedback": ["agent:write"],
     }
+
+
+# ============================================================================
+# Ory Configuration Models
+# ============================================================================
+
+
+class OAuthProviderConfig(BaseModel):
+    """OAuth provider configuration for external services."""
+
+    name: str = Field(..., description="Provider name (notion, google, github, etc.)")
+    client_id: str = Field(..., description="OAuth client ID")
+    client_secret: str = Field(..., description="OAuth client secret")
+    auth_url: HttpUrl = Field(..., description="Authorization URL")
+    token_url: HttpUrl = Field(..., description="Token URL")
+    userinfo_url: Optional[HttpUrl] = Field(None, description="User info URL")
+    scope: str = Field(..., description="Default scope")
+    redirect_uri: HttpUrl = Field(..., description="Redirect URI")
+
+
+class KratosConfig(BaseModel):
+    """Kratos identity management configuration."""
+
+    enabled: bool = Field(default=True, description="Enable Kratos identity management")
+    admin_url: HttpUrl = Field(
+        default="http://localhost:4434", description="Kratos Admin API URL"
+    )
+    public_url: HttpUrl = Field(
+        default="http://localhost:4433", description="Kratos Public API URL"
+    )
+    timeout: int = Field(default=10, description="Request timeout in seconds")
+    verify_ssl: bool = Field(default=False, description="Verify SSL certificates")
+
+    # Encryption settings
+    encryption_key: Optional[str] = Field(
+        default=None,
+        description="Fernet key for encrypting OAuth tokens (32-byte URL-safe base64)",
+    )
+
+    # Identity schema
+    default_schema_id: str = Field(
+        default="default", description="Default identity schema ID"
+    )
+
+    # Session settings
+    session_lifespan: int = Field(
+        default=2592000, description="Session lifespan in seconds (30 days)"
+    )
+
+    @validator("encryption_key")
+    def validate_encryption_key(cls, v):
+        """Validate encryption key format."""
+        if v is None:
+            return v
+
+        import base64
+
+        try:
+            # Check if it's a valid Fernet key (32-byte URL-safe base64)
+            decoded = base64.urlsafe_b64decode(v)
+            if len(decoded) != 32:
+                raise ValueError("Encryption key must be 32 bytes when decoded")
+            return v
+        except Exception as e:
+            raise ValueError(f"Invalid encryption key: {e}")
+
+
+# ============================================================================
+# Hydra Settings
+# ============================================================================
 
 
 class HydraSettings(BaseSettings):

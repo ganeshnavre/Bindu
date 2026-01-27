@@ -10,43 +10,11 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
 import aiohttp
-from pydantic import BaseModel
 
+from bindu.common.models import TokenIntrospectionResult, OAuthClient
 from bindu.utils.logging import get_logger
 
 logger = get_logger("bindu.auth.hydra_client")
-
-
-class TokenIntrospectionResult(BaseModel):
-    """Result of token introspection from Hydra."""
-
-    active: bool
-    sub: Optional[str] = None
-    client_id: Optional[str] = None
-    exp: Optional[int] = None
-    iat: Optional[int] = None
-    aud: Optional[List[str]] = None
-    iss: Optional[str] = None
-    scope: Optional[str] = None
-    token_type: Optional[str] = None
-    username: Optional[str] = None
-    ext: Optional[Dict[str, Any]] = None
-    grant_type: Optional[str] = None
-    nbf: Optional[int] = None
-
-
-class OAuthClient(BaseModel):
-    """OAuth2 client configuration."""
-
-    client_id: str
-    client_name: Optional[str] = None
-    client_secret: Optional[str] = None
-    redirect_uris: List[str] = []
-    grant_types: List[str] = ["authorization_code", "refresh_token"]
-    response_types: List[str] = ["code"]
-    scope: str = "openid offline"
-    token_endpoint_auth_method: str = "client_secret_basic"
-    metadata: Optional[Dict[str, Any]] = None
 
 
 class HydraClient:
