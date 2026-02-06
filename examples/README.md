@@ -32,7 +32,6 @@ Bindu works seamlessly with other agent frameworks like Agno.
 
 | File | Description | Key Features |
 |------|-------------|--------------|
-| `agno_example.py` | Research assistant with DuckDuckGo search, Auth0, and X402 payments. | **Full-featured**, Auth0 authentication, X402 payments, Skills |
 | `agno_simple_example.py` | Simplified research assistant with DuckDuckGo search. | Agno integration, environment-based config |
 
 ### 3. Advanced Capabilities
@@ -49,29 +48,14 @@ Helper scripts for testing and development.
 
 | File | Description | Key Features |
 |------|-------------|--------------|
-| `get_auth0_token.py` | Utility to obtain Auth0 access tokens for testing. | Auth0 client credentials flow, Token management |
 | `webhook_client_example.py` | FastAPI webhook receiver for Bindu notifications. | Webhook handling, Event processing |
 
 ## Environment Setup
 
-Most examples require environment variables for API keys and infrastructure configuration. Copy the example env file:
+Most examples require environment variables for API keys and infrastructure configuration.
 
 ```bash
-cp .env.example .env
-```
-
-Then edit `.env` with your credentials:
-
-```bash
-# Required for LLM-based agents
-OPENAI_API_KEY=sk-...
-
-# Optional: For Auth0 authentication
-AUTH0_DOMAIN=your-tenant.auth0.com
-AUTH0_CLIENT_ID=...
-AUTH0_CLIENT_SECRET=...
-
-# Optional: For Hydra authentication (default)
+# Hydra authentication (default)
 HYDRA__ADMIN_URL=https://hydra-admin.getbindu.com
 HYDRA__PUBLIC_URL=https://hydra.getbindu.com
 
@@ -80,21 +64,6 @@ DATABASE_URL=postgresql+asyncpg://user:pass@host/db  # pragma: allowlist secret
 
 # Optional: For Redis scheduler
 REDIS_URL=rediss://default:pass@host:6379  # pragma: allowlist secret
-```
-
-## Spotlight: Full-Featured Agent with Authentication
-
-The `agno_example.py` demonstrates a **production-ready** agent with:
-- ✅ **Auth0 Authentication** - Secure API access with JWT tokens
-- ✅ **X402 Payments** - Crypto micropayments for API calls
-- ✅ **Skills** - Modular capabilities (question-answering, PDF processing)
-- ✅ **DuckDuckGo Search** - Real-time web search integration
-- ✅ **Permission-based Access** - Fine-grained endpoint permissions
-
-**To run it:**
-```bash
-# Set up Auth0 credentials in .env first
-uv run examples/agno_example.py
 ```
 
 ## Spotlight: Premium Advisor Agent
@@ -128,26 +97,7 @@ curl -X POST http://localhost:3773/ \
          }'
 ```
 
-### Authenticated Request (Auth0)
-First, get a token:
-```bash
-python examples/get_auth0_token.py --copy
-```
-
-Then use it:
-```bash
-curl -X POST http://localhost:3773/ \
-     -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-     -H "Content-Type: application/json" \
-     -d '{
-           "jsonrpc": "2.0",
-           "method": "message/send",
-           "params": {"message": {"role": "user", "content": "Hello!"}},
-           "id": 1
-         }'
-```
-
-### Authenticated Request (Hydra - Default)
+### Authenticated Request (Hydra)
 Get a token using client credentials:
 ```bash
 curl 'https://hydra.getbindu.com/oauth2/token' \

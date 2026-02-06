@@ -370,17 +370,6 @@ def load_config_from_env(config: Dict[str, Any]) -> Dict[str, Any]:
                     enriched_config["auth"]["agent_client_prefix"] = hydra_client_prefix
                     logger.debug("Loaded HYDRA__AGENT_CLIENT_PREFIX from environment")
 
-            elif auth_provider == "auth0":
-                auth0_domain = os.getenv("AUTH0_DOMAIN")
-                if auth0_domain:
-                    enriched_config["auth"]["domain"] = auth0_domain
-                    logger.debug("Loaded AUTH0_DOMAIN from environment")
-
-                auth0_audience = os.getenv("AUTH0_AUDIENCE")
-                if auth0_audience:
-                    enriched_config["auth"]["audience"] = auth0_audience
-                    logger.debug("Loaded AUTH0_AUDIENCE from environment")
-
     return enriched_config
 
 
@@ -452,27 +441,6 @@ def update_auth_settings(auth_config: Dict[str, Any]) -> None:
                 f"auto_register={auth_config.get('auto_register_agents')}"
             )
 
-        elif provider == "auth0":
-            # Auth0-specific settings
-            app_settings.auth.domain = auth_config.get("domain", "")
-            app_settings.auth.audience = auth_config.get("audience", "")
-            app_settings.auth.algorithms = auth_config.get("algorithms", ["RS256"])
-            app_settings.auth.issuer = auth_config.get("issuer", "")
-            app_settings.auth.jwks_uri = auth_config.get("jwks_uri", "")
-            app_settings.auth.public_endpoints = auth_config.get(
-                "public_endpoints", app_settings.auth.public_endpoints
-            )
-            app_settings.auth.require_permissions = auth_config.get(
-                "require_permissions", False
-            )
-            app_settings.auth.permissions = auth_config.get(
-                "permissions", app_settings.auth.permissions
-            )
-
-            logger.info(
-                f"Auth0 authentication configured: domain={auth_config.get('domain')}, "
-                f"audience={auth_config.get('audience')}"
-            )
     else:
         # Auth is not provided or disabled - ensure it's disabled
         app_settings.auth.enabled = False

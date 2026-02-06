@@ -177,73 +177,16 @@ class ConfigValidator:
         if not auth_config.get("enabled", False):
             return  # Auth disabled, no further validation needed
 
-        # Get provider (default to hydra for backward compatibility)
+        # Get provider (default to hydra)
         provider = auth_config.get("provider", "hydra").lower()
 
         # Validate based on provider
-        if provider == "auth0":
-            cls._validate_auth0_config(auth_config)
-        elif provider == "hydra":
+        if provider == "hydra":
             cls._validate_hydra_config(auth_config)
-        elif provider in ["cognito", "azure", "custom"]:
-            # Future providers - minimal validation for now
-            pass
         else:
             raise ValueError(
-                f"Unknown auth provider: '{provider}'. "
-                f"Supported providers: auth0, hydra, cognito, azure, custom"
+                f"Unknown auth provider: '{provider}'. Supported providers: hydra"
             )
-
-    @classmethod
-    def _validate_auth0_config(cls, auth_config: Dict[str, Any]) -> None:
-        """Validate Auth0-specific configuration.
-
-        Args:
-            auth_config: Auth configuration dictionary
-
-        Raises:
-            ValueError: If Auth0 configuration is invalid
-        """
-        # Required fields for Auth0
-        required_auth_fields = ["domain", "audience"]
-        missing = [
-            field for field in required_auth_fields if not auth_config.get(field)
-        ]
-        if missing:
-            raise ValueError(
-                f"Auth0 is enabled but missing required fields: {', '.join(missing)}. Required: domain, audience"
-            )
-
-        # Validate domain format
-        domain = auth_config.get("domain", "")
-        if not domain or "." not in domain:
-            raise ValueError(
-                f"Invalid auth domain: '{domain}'. "
-                f"Expected format: 'your-tenant.auth0.com' or 'your-tenant.us.auth0.com'"
-            )
-
-        # Validate audience format (should be a URL)
-        audience = auth_config.get("audience", "")
-        if not audience or not (
-            audience.startswith("http://") or audience.startswith("https://")
-        ):
-            raise ValueError(
-                f"Invalid auth audience: '{audience}'. "
-                f"Expected format: 'https://api.your-domain.com' or 'https://your-api-identifier'"
-            )
-
-        # Validate algorithms if provided
-        if "algorithms" in auth_config:
-            algorithms = auth_config["algorithms"]
-            if not isinstance(algorithms, list):
-                raise ValueError("Field 'auth.algorithms' must be a list")
-
-            valid_algorithms = ["RS256", "RS384", "RS512", "HS256", "HS384", "HS512"]
-            invalid_algs = [alg for alg in algorithms if alg not in valid_algorithms]
-            if invalid_algs:
-                raise ValueError(
-                    f"Invalid algorithms in auth config: {invalid_algs}. Valid options: {valid_algorithms}"
-                )
 
     @classmethod
     def _validate_hydra_config(cls, auth_config: Dict[str, Any]) -> None:

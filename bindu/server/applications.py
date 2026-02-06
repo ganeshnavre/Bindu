@@ -40,7 +40,7 @@ from bindu.common.models import (
 from bindu.settings import app_settings
 from bindu.utils.retry import execute_with_retry
 
-from .middleware.auth import Auth0Middleware, HydraMiddleware
+from .middleware.auth import HydraMiddleware
 from .scheduler.base import Scheduler
 from .storage.base import Storage
 from .task_manager import TaskManager
@@ -84,7 +84,7 @@ class BinduApplication(Starlette):
             lifespan: Optional custom lifespan
             routes: Optional custom routes
             middleware: Optional middleware
-            auth_enabled: Enable Auth0 authentication middleware
+            auth_enabled: Enable Hydra OAuth2 authentication middleware
             telemetry_config: Optional telemetry configuration (defaults to disabled)
             sentry_config: Optional Sentry configuration (defaults to disabled)
         """
@@ -534,7 +534,7 @@ class BinduApplication(Starlette):
         manifest: AgentManifest,
         auth_enabled: bool,
     ) -> list[Middleware]:
-        """Set up middleware chain with X402 and Auth0 middleware.
+        """Set up middleware chain with X402 and Hydra middleware.
 
         Args:
             middleware: Custom middleware to include
@@ -593,24 +593,14 @@ class BinduApplication(Starlette):
         """
         provider = app_settings.auth.provider.lower()
 
-        if provider == "auth0":
-            logger.info("Auth0 authentication enabled")
-            return Middleware(Auth0Middleware, auth_config=app_settings.auth)
-        elif provider == "hydra":
+        if provider == "hydra":
             logger.info("Hydra OAuth2 authentication enabled")
-            # Use Hydra-specific settings if enabled, otherwise fall back to auth settings
-            if app_settings.hydra.enabled:
-                return Middleware(HydraMiddleware, auth_config=app_settings.hydra)
-            else:
-                logger.warning(
-                    "Hydra provider selected but hydra.enabled=False, using default config"
-                )
-                return Middleware(HydraMiddleware, auth_config=app_settings.hydra)
+            return Middleware(HydraMiddleware, auth_config=app_settings.hydra)
         else:
             logger.error(f"Unknown authentication provider: {provider}")
             raise ValueError(
                 f"Unknown authentication provider: '{provider}'. "
-                f"Supported providers: auth0, hydra, cognito, azure, custom"
+                f"Supported providers: hydra"
             )
 
     def _setup_payment_session_manager(
