@@ -4,7 +4,7 @@ import { requireAuth } from "$lib/server/api/utils/requireAuth";
 import { resolveConversation } from "$lib/server/api/utils/resolveConversation";
 import { collections } from "$lib/server/database";
 import { authCondition } from "$lib/server/auth";
-import { ObjectId } from "mongodb";
+import ObjectId from "bson-objectid";
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
 	requireAuth(locals);

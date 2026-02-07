@@ -5,7 +5,7 @@ import { models, validModelIdSchema } from "$lib/server/models";
 import { ERROR_MESSAGES } from "$lib/stores/errors";
 import type { Message } from "$lib/types/Message";
 import { error } from "@sveltejs/kit";
-import { ObjectId } from "mongodb";
+import ObjectId from "bson-objectid";
 import { z } from "zod";
 import {
 	MessageUpdateStatus,

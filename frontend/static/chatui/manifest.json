@@ -1,7 +1,7 @@
 {
 	"background_color": "#ffffff",
-	"name": "ChatUI",
-	"short_name": "ChatUI",
+	"name": "Bindu UI 🌻",
+	"short_name": "Bindu UI",
 	"display": "standalone",
 	"start_url": "/chat",
 	"icons": [

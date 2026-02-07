@@ -5,7 +5,7 @@ import { models } from "$lib/server/models";
 import { buildSubtree } from "$lib/utils/tree/buildSubtree";
 import { isMessageId } from "$lib/utils/tree/isMessageId";
 import { error } from "@sveltejs/kit";
-import { ObjectId } from "mongodb";
+import ObjectId from "bson-objectid";
 
 export async function GET({ params, locals }) {
 	const conv =

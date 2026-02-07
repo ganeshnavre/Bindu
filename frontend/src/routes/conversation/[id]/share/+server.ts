@@ -3,7 +3,7 @@ import { collections } from "$lib/server/database";
 import type { SharedConversation } from "$lib/types/SharedConversation";
 import { hashConv } from "$lib/utils/hashConv";
 import { error } from "@sveltejs/kit";
-import { ObjectId } from "mongodb";
+import ObjectId from "bson-objectid";
 import { nanoid } from "nanoid";
 
 export async function POST({ params, locals }) {
