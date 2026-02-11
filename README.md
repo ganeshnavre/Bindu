@@ -578,400 +578,69 @@ bindufy(config, handler)
 
 <br/>
 
-## [Skills System](https://docs.getbindu.com/bindu/skills/introduction/overview)
+## 🎯 Skills
 
-> Rich capability advertisement for intelligent agent orchestration
+Reusable capabilities that agents advertise and execute. Enable intelligent task routing and orchestration.
 
-The Bindu Skills System provides rich agent capability advertisement for intelligent orchestration and agent discovery. Inspired by Claude's skills architecture, it enables agents to provide detailed documentation about their capabilities for orchestrators to make informed routing decisions.
-
-### 💡 What are Skills?
-
-Skills in Bindu serve as **rich advertisement metadata** that help orchestrators:
-
-* 🔍 **Discover** the right agent for a task
-* 📖 **Understand** detailed capabilities and limitations
-* ✅ **Validate** requirements before execution
-* 📊 **Estimate** performance and resource needs
-* 🔗 **Chain** multiple agents intelligently
-
-> **Note**: Skills are not executable code—they're structured metadata that describe what your agent can do.
-
-### 📋 Complete Skill Structure
-
-<details>
-<summary><b>View complete skill.yaml structure</b> (click to expand)</summary>
-
-A skill.yaml file contains all metadata needed for intelligent orchestration:
-
-```yaml
-# Basic Metadata
-id: pdf-processing-v1
-name: pdf-processing
-version: 1.0.0
-author: raahul@getbindu.com
-
-# Description
-description: |
-  Extract text, fill forms, and extract tables from PDF documents.
-  Handles both standard text-based PDFs and scanned documents with OCR.
-
-# Tags and Modes
-tags:
-  - pdf
-  - documents
-  - extraction
-
-input_modes:
-  - application/pdf
-
-output_modes:
-  - text/plain
-  - application/json
-  - application/pdf
-
-# Example Queries
-examples:
-  - "Extract text from this PDF document"
-  - "Fill out this PDF form with the provided data"
-  - "Extract tables from this invoice PDF"
-
-# Detailed Capabilities
-capabilities_detail:
-  text_extraction:
-    supported: true
-    types:
-      - standard
-      - scanned_with_ocr
-    languages:
-      - eng
-      - spa
-    limitations: "OCR requires pytesseract and tesseract-ocr"
-    preserves_formatting: true
-
-  form_filling:
-    supported: true
-    field_types:
-      - text
-      - checkbox
-      - dropdown
-    validation: true
-
-  table_extraction:
-    supported: true
-    table_types:
-      - simple
-      - complex_multi_column
-    output_formats:
-      - json
-      - csv
-
-# Requirements
-requirements:
-  packages:
-    - pypdf>=3.0.0
-    - pdfplumber>=0.9.0
-    - pytesseract>=0.3.10
-  system:
-    - tesseract-ocr
-  min_memory_mb: 512
-
-# Performance Metrics
-performance:
-  avg_processing_time_ms: 2000
-  avg_time_per_page_ms: 200
-  max_file_size_mb: 50
-  max_pages: 500
-  concurrent_requests: 5
-  memory_per_request_mb: 500
-  timeout_per_page_seconds: 30
-
-# Rich Documentation
-documentation:
-  overview: |
-    This agent specializes in PDF document processing with support for text extraction,
-    form filling, and table extraction. Handles both standard text-based PDFs and
-    scanned documents (with OCR).
-
-  use_cases:
-    when_to_use:
-      - User uploads a PDF and asks to extract text
-      - User needs to fill out PDF forms programmatically
-      - User wants to extract tables from reports/invoices
-    when_not_to_use:
-      - PDF editing or modification
-      - PDF creation from scratch
-      - Image extraction from PDFs
-
-  input_structure: |
-    {
-      "file": "base64_encoded_pdf_or_url",
-      "operation": "extract_text|fill_form|extract_tables",
-      "options": {
-        "ocr": true,
-        "language": "eng"
-      }
-    }
-
-  output_format: |
-    {
-      "success": true,
-      "pages": [{"page_number": 1, "text": "...", "confidence": 0.98}],
-      "metadata": {"total_pages": 10, "processing_time_ms": 1500}
-    }
-
-  error_handling:
-    - "Encrypted PDFs: Returns error requesting password"
-    - "Corrupted files: Returns validation error with details"
-    - "Timeout: 30s per page, returns partial results"
-
-  examples:
-    - title: "Extract Text from PDF"
-      input:
-        file: "https://example.com/document.pdf"
-        operation: "extract_text"
-      output:
-        success: true
-        pages:
-          - page_number: 1
-            text: "Extracted text..."
-            confidence: 0.99
-
-  best_practices:
-    for_developers:
-      - "Check file size before processing (max 50MB)"
-      - "Use OCR only when necessary (3-5x slower)"
-      - "Handle errors gracefully with user-friendly messages"
-    for_orchestrators:
-      - "Route based on operation type (extract/fill/parse)"
-      - "Consider file size for performance estimation"
-      - "Chain with text-analysis for content understanding"
-
-# Assessment fields for skill negotiation
-assessment:
-  keywords:
-    - pdf
-    - extract
-    - document
-    - form
-    - table
-
-  specializations:
-    - domain: invoice_processing
-      confidence_boost: 0.3
-    - domain: form_filling
-      confidence_boost: 0.3
-
-  anti_patterns:
-    - "pdf editing"
-    - "pdf creation"
-    - "merge pdf"
-
-  complexity_indicators:
-    simple:
-      - "single page"
-      - "extract text"
-    medium:
-      - "multiple pages"
-      - "fill form"
-    complex:
-      - "scanned document"
-      - "ocr"
-      - "batch processing"
-```
-
-</details>
-
-### 🔌 API Endpoints
-
-**List All Skills**:
+**API Endpoints:**
 ```bash
-GET /agent/skills
+GET /agent/skills                      # List all skills
+GET /agent/skills/{skill_id}           # Get details
+GET /agent/skills/{skill_id}/documentation  # Get docs
 ```
 
-**Get Skill Details**:
-```bash
-GET /agent/skills/{skill_id}
-```
-
-**Get Skill Documentation**:
-```bash
-GET /agent/skills/{skill_id}/documentation
-```
-
-> 📚 See the [Skills Documentation](https://github.com/getbindu/Bindu/tree/main/examples/skills) for complete examples.
+📖 **[Full Skills Guide →](docs/SKILLS.md)** - Creating skills, metadata, examples
 
 ---
 
 <br/>
 
-## Negotiation
+## 🤝 Negotiation
 
-> Capability-based agent selection for intelligent orchestration
+Capability-based agent selection for intelligent orchestration. Query multiple agents and select the best one.
 
-Bindu's negotiation system enables orchestrators to query multiple agents and intelligently select the best one for a task based on skills, performance, load, and cost.
+**How It Works:**
+1. Orchestrator broadcasts → Multiple agents
+2. Agents self-assess → Capability scoring
+3. Orchestrator ranks → Multi-factor scoring
+4. Best agent selected → Task executed
 
-### 🔄 How It Works
-
-1. **Orchestrator broadcasts** assessment request to multiple agents
-2. **Agents self-assess** capability using skill matching and load analysis
-3. **Orchestrator ranks** responses using multi-factor scoring
-4. **Best agent selected** and task executed
-
-### 🔌 Assessment Endpoint
-
-<details>
-<summary><b>View API details</b> (click to expand)</summary>
-
+**API:**
 ```bash
 POST /agent/negotiation
 ```
 
-**Request:**
-```json
-{
-  "task_summary": "Extract tables from PDF invoices",
-  "task_details": "Process invoice PDFs and extract structured data",
-  "input_mime_types": ["application/pdf"],
-  "output_mime_types": ["application/json"],
-  "max_latency_ms": 5000,
-  "max_cost_amount": "0.001",
-  "min_score": 0.7,
-  "weights": {
-    "skill_match": 0.6,
-    "io_compatibility": 0.2,
-    "performance": 0.1,
-    "load": 0.05,
-    "cost": 0.05
-  }
-}
-```
+📖 **[Full Negotiation Guide →](docs/NEGOTIATION.md)** - Scoring, orchestration, examples
 
-**Response:**
-```json
-{
-  "accepted": true,
-  "score": 0.89,
-  "confidence": 0.95,
-  "skill_matches": [
-    {
-      "skill_id": "pdf-processing-v1",
-      "skill_name": "pdf-processing",
-      "score": 0.92,
-      "reasons": [
-        "semantic similarity: 0.95",
-        "tags: pdf, tables, extraction",
-        "capabilities: text_extraction, table_extraction"
-      ]
-    }
-  ],
-  "matched_tags": ["pdf", "tables", "extraction"],
-  "matched_capabilities": ["text_extraction", "table_extraction"],
-  "latency_estimate_ms": 2000,
-  "queue_depth": 2,
-  "subscores": {
-    "skill_match": 0.92,
-    "io_compatibility": 1.0,
-    "performance": 0.85,
-    "load": 0.90,
-    "cost": 1.0
-  }
-}
-```
+---
 
-</details>
+<br/>
 
-### 📊 Scoring Algorithm
+## 📬 Push Notifications
 
-Agents calculate a confidence score based on multiple factors:
+Real-time webhook notifications for task updates. No polling required.
 
-```python
-score = (
-    skill_match * 0.6 +        # Primary: skill matching
-    io_compatibility * 0.2 +   # Input/output format support
-    performance * 0.1 +        # Speed and reliability
-    load * 0.05 +              # Current availability
-    cost * 0.05                # Pricing
-)
-```
-
-### 🎯 Skill Assessment
-
-<details>
-<summary><b>View assessment metadata example</b> (click to expand)</summary>
-
-Skills include assessment metadata for intelligent matching:
-
-```yaml
-assessment:
-  keywords:
-    - pdf
-    - extract
-    - table
-    - invoice
-
-  specializations:
-    - domain: invoice_processing
-      confidence_boost: 0.3
-    - domain: table_extraction
-      confidence_boost: 0.2
-
-  anti_patterns:
-    - "pdf editing"
-    - "pdf creation"
-
-  complexity_indicators:
-    simple:
-      - "single page"
-      - "extract text"
-    complex:
-      - "scanned document"
-      - "batch processing"
-```
-
-</details>
-
-### 💡 Example: Multi-Agent Selection
-
+**Quick Setup:**
 ```bash
-# Query 10 translation agents
-for agent in translation-agents:
-  curl http://$agent:3773/agent/negotiation \
-    -d '{"task_summary": "Translate technical manual to Spanish"}'
-
-# Responses ranked by orchestrator
-# Agent 1: score=0.98 (technical specialist, queue=2)
-# Agent 2: score=0.82 (general translator, queue=0)
-# Agent 3: score=0.65 (no technical specialization)
+GLOBAL_WEBHOOK_URL=https://your-server.com/webhooks
+GLOBAL_WEBHOOK_TOKEN=your_secret_token
 ```
 
-### ⚙️ Configuration
+**Event Types:**
+- `status-update` - Task state changes
+- `artifact-update` - Output generation
 
-<details>
-<summary><b>View configuration example</b> (click to expand)</summary>
+📖 **[Full Notifications Guide →](docs/NOTIFICATIONS.md)** - Webhook setup, security, examples
 
-Enable negotiation in your agent config:
+---
 
-```json
-config = {
-    "author": "your.email@example.com",
-    "name": "research_agent",
-    "description": "A research assistant agent",
-    "deployment": {"url": "http://localhost:3773", "expose": True},
-    "skills": ["skills/question-answering", "skills/pdf-processing"],
-    "storage": {
-        "type": "postgres",
-        "database_url": "postgresql+asyncpg://bindu:bindu@localhost:5432/bindu",  # pragma: allowlist secret
-        "run_migrations_on_startup": False,
-    },
-    "negotiation": {
-        "embedding_api_key": os.getenv("OPENROUTER_API_KEY"),  # Load from environment
-    },
-}
-```
+<br/>
 
-</details>
+## 🔄 Retry Mechanism
 
-> 📚 See the [Negotiation Documentation](https://docs.getbindu.com/bindu/negotiation/overview) for complete details.
+Automatic retry with exponential backoff for resilient agents. Handles transient failures gracefully.
+
+📖 **[Retry Documentation →](https://docs.getbindu.com/bindu/learn/retry/overview)**
 
 ---
 
